@@ -4,13 +4,13 @@
 #include <time.h>
 #include "inc/skip_list.h"
 
-#define CONST_COIN 5 // values below that
+#define CONST_COIN 5 // Value reference to be used in insert function.
 
-typedef struct t_node
+struct t_node
 {
     int i;
     struct t_node *above, *below, *next, *prev;
-} NODE;
+};
 
 struct t_skip_list
 {
@@ -18,7 +18,7 @@ struct t_skip_list
     NODE *head, *tail;
 };
 
-SKIP_LIST *create()
+SKIP_LIST *skip_list_create()
 {
     SKIP_LIST *new = NULL;
     new = (SKIP_LIST *) malloc(sizeof(SKIP_LIST));
@@ -63,7 +63,7 @@ SKIP_LIST *create()
     return new;
 }
 
-void insert(SKIP_LIST **list, int i)
+void skip_list_insert(SKIP_LIST **list, int i)
 {
     if((*list) != NULL)
     {
@@ -97,13 +97,13 @@ void insert(SKIP_LIST **list, int i)
             while((rand() % 10 + 1) > CONST_COIN) // Flip the coin, if get the value < 5, returns, otherwise insert node in the list at high level
             {
                 old = new;
-                while(ptr->prev != NULL && ptr->above == NULL)
+                while(ptr->prev != NULL && ptr->above == NULL) // Get the first node that have a node at high level list
                 {
                     ptr = ptr->prev;
                 }
-                if(ptr->above != NULL)
+                if(ptr->above != NULL) // if was found it
                 {
-                    ptr = ptr->above;
+                    ptr = ptr->above; // up one level
                     new = (NODE *) malloc(sizeof(NODE));
                     if(new != NULL)
                     {
@@ -120,13 +120,13 @@ void insert(SKIP_LIST **list, int i)
                         printf("ERRO AO ALOCAR O NOVO NO ACIMA!\n");
                     }
                 }
-                else
+                else // There is no list above or there is no connection between the lists
                 {
-                    while(ptr->i != INT_MIN)
+                    while(ptr->i != INT_MIN) // Then, we have to walk up to the first node in the list of the new inserted node
                     {
                         ptr = ptr->prev;
                     }
-                    new_list = create();
+                    new_list = skip_list_create();
                     new_list->head->below = (*list)->head;
                     new_list->tail->below = (*list)->tail;
                     new_list->down_level = (*list);
@@ -165,7 +165,79 @@ void insert(SKIP_LIST **list, int i)
     }
 }
 
-void delete(SKIP_LIST **list)
+void skip_list_remove(SKIP_LIST *list, int n)
+{
+    if(list != NULL)
+    {
+        NODE *ptr = NULL, *aux = NULL;
+        ptr = skip_list_search(list, n);
+        if(ptr != NULL)
+        {
+            while(ptr->above != NULL)
+            {
+                ptr->prev->next = ptr->next;
+                ptr->next->prev = ptr->prev;
+                aux = ptr->above;
+                free(ptr);
+                ptr = aux;
+            }
+            ptr->prev->next = ptr->next;
+            ptr->next->prev = ptr->prev;
+            free(ptr);
+        }
+        else
+        {
+            printf("O ITEM A SER REMOVIDO NAO EXISTE!\n");
+        }
+
+    }
+    else
+    {
+        printf("A SKIP LIST NAO EXISTE!\n");
+    }
+}
+
+NODE *skip_list_search(SKIP_LIST *list, int n)
+{
+    NODE *ptr = NULL;
+    if(list != NULL)
+    {
+        ptr = list->head;
+        while(ptr->below != NULL)
+        {
+            if(ptr->next->i <= n)
+            {
+                ptr = ptr->next;
+            }
+            else
+            {
+                ptr = ptr->below;
+            }
+        }
+        if(ptr->i != n)
+        {
+            while( ptr != NULL && ptr->i != n)
+            {
+                ptr = ptr->next;
+            }
+        }
+    }
+    else
+    {
+        printf("A SKIP LIST NAO EXISTE!\n");
+    }
+    return ptr;
+}
+
+void skip_list_print_node(NODE *nd)
+{
+    if(nd != NULL)
+    {
+        printf("%d\n", nd->i);
+    }
+}
+
+void skip_list_delete(SKIP_LIST **list)
 {
     if((*list) != NULL)
     {
