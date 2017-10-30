@@ -46,6 +46,7 @@ SKIP_LIST *skip_list_create()
             else
             {
                 free(new->head);
+                free(new);
                 printf("ERRO O CRIAR TAIL!\n");
             }
         }
@@ -69,99 +70,99 @@ void skip_list_insert(SKIP_LIST **list, int i)
     {
         SKIP_LIST *new_list = NULL;
         NODE *ptr = (*list)->head, *old = NULL;
-        while(1) // Go to the deeper list, skipping the unecessary values
+        while(ptr->below) // Go to the deeper list, skipping the unecessary values
         {
-            while(i > ptr->next->i) // Skip the unecessary values
+            while(i >= ptr->next->i) // Skip the unecessary values
             {
                 ptr = ptr->next;
             }
-            if(ptr->below != NULL)
-            {
-                ptr = ptr->below;
-            }
-            else
-            {
-                break;
-            }
+            ptr = ptr->below;
         }
-        NODE *new = (NODE *) malloc(sizeof(NODE));
-        if(new != NULL)
+        if(ptr->i != i)
         {
-            new->i = i;
-            new->prev = ptr;
-            new->next = ptr->next;
-            new->below = NULL;
-            new->above = NULL;
-            ptr->next->prev = new;
-            ptr->next = new;
-            srand(time(NULL));
-            while((rand() % 10 + 1) > CONST_COIN) // Flip the coin, if get the value < 5, returns, otherwise insert node in the list at high level
+            NODE *new = (NODE *) malloc(sizeof(NODE));
+            if(new != NULL)
             {
-                old = new;
-                while(ptr->prev != NULL && ptr->above == NULL) // Get the first node that have a node at high level list
+                new->i = i;
+                new->prev = ptr;
+                new->next = ptr->next;
+                new->below = NULL;
+                new->above = NULL;
+                ptr->next->prev = new;
+                ptr->next = new;
+                srand(time(NULL));
+                while((rand() % 10 + 1) > CONST_COIN) // Flip the coin, if get the value < 5, returns, otherwise insert node in the list at high level
                 {
-                    ptr = ptr->prev;
-                }
-                if(ptr->above != NULL) // if was found it
-                {
-                    ptr = ptr->above; // up one level
-                    new = (NODE *) malloc(sizeof(NODE));
-                    if(new != NULL)
+                    old = new;
+                    while(ptr->prev != NULL && ptr->above == NULL) // Get the first node that have a node at high level list
                     {
-                        old->above = new;
-                        new->i = i;
-                        new->prev = ptr;
-                        new->next = ptr->next;
-                        ptr->next->prev = new;
-                        ptr->next = new;
-                        new->below = old;
-                        new->above = NULL;
+                        ptr = ptr->prev;
                     }
-                    else
+                    if(ptr->above != NULL) // if was found it
                     {
-                        printf("ERRO AO ALOCAR O NOVO NO ACIMA!\n");
-                    }
-                }
-                else // There is no list above or there is no connection between the lists
-                {
-                    new_list = skip_list_create();
-                    if(new_list != NULL)
-                    {
-                        new_list->head->below = (*list)->head;
-                        new_list->tail->below = (*list)->tail;
-                        new_list->down_level = (*list);
-                        (*list)->up_level = new_list;
-                        (*list)->head->above = new_list->head;
-                        (*list)->tail->above = new_list->tail;
-                        ptr = new_list->head;
+                        ptr = ptr->above; // up one level
                         new = (NODE *) malloc(sizeof(NODE));
                         if(new != NULL)
                         {
                             old->above = new;
                             new->i = i;
                             new->prev = ptr;
-                            ptr->next->prev = new;
                             new->next = ptr->next;
+                            ptr->next->prev = new;
                             ptr->next = new;
                             new->below = old;
                             new->above = NULL;
-                            (*list) = new_list;
                         }
                         else
                         {
                             printf("ERRO AO ALOCAR O NOVO NO ACIMA!\n");
                         }
                     }
-                    else
+                    else // There is no list above or there is no connection between the lists
                     {
-                        printf("ERRO AO CRIAR A NOVA LISTA ACIMA!\n");
+                        new_list = skip_list_create();
+                        if(new_list != NULL)
+                        {
+                            new_list->head->below = (*list)->head;
+                            new_list->tail->below = (*list)->tail;
+                            new_list->down_level = (*list);
+                            (*list)->up_level = new_list;
+                            (*list)->head->above = new_list->head;
+                            (*list)->tail->above = new_list->tail;
+                            ptr = new_list->head;
+                            new = (NODE *) malloc(sizeof(NODE));
+                            if(new != NULL)
+                            {
+                                old->above = new;
+                                new->i = i;
+                                new->prev = ptr;
+                                ptr->next->prev = new;
+                                new->next = ptr->next;
+                                ptr->next = new;
+                                new->below = old;
+                                new->above = NULL;
+                                (*list) = new_list;
+                            }
+                            else
+                            {
+                                printf("ERRO AO ALOCAR O NOVO NO ACIMA!\n");
+                            }
+                        }
+                        else
+                        {
+                            printf("ERRO AO CRIAR A NOVA LISTA ACIMA!\n");
+                        }
                     }
                 }
+            }
+            else
+            {
+                printf("ERRO AO ALOCAR O NOVO NO!\n");
             }
         }
         else
         {
-            printf("ERRO AO ALOCAR O NOVO NO!\n");
+            printf("OPERACAO INVALIDA!\n");
         }
     }
 }
@@ -238,7 +239,7 @@ void skip_list_delete(SKIP_LIST **list)
     {
         SKIP_LIST *ptr_list = NULL;
         NODE *ptr_node = NULL, *aux = NULL;
-        while((*list) != NULL)
+        while((*list) != NULL)%s
         {
             ptr_list = (*list);
             (*list) = (*list)->down_level;
