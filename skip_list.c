@@ -92,6 +92,7 @@ void skip_list_insert(SKIP_LIST **list, int i)
             new->next = ptr->next;
             new->below = NULL;
             new->above = NULL;
+            ptr->next->prev = new;
             ptr->next = new;
             srand(time(NULL));
             while((rand() % 10 + 1) > CONST_COIN) // Flip the coin, if get the value < 5, returns, otherwise insert node in the list at high level
@@ -111,6 +112,7 @@ void skip_list_insert(SKIP_LIST **list, int i)
                         new->i = i;
                         new->prev = ptr;
                         new->next = ptr->next;
+                        ptr->next->prev = new;
                         ptr->next = new;
                         new->below = old;
                         new->above = NULL;
@@ -122,17 +124,15 @@ void skip_list_insert(SKIP_LIST **list, int i)
                 }
                 else // There is no list above or there is no connection between the lists
                 {
-                    // while(ptr->i != INT_MIN) // Then, we have to walk up to the first node in the list of the new inserted node
-                    // {
-                    //     ptr = ptr->prev;
-                    // }
                     new_list = skip_list_create();
-                    new_list->head->below = (*list)->head;
-                    new_list->tail->below = (*list)->tail;
-                    new_list->down_level = (*list);
-                    (*list)->up_level = new_list;
                     if(new_list != NULL)
                     {
+                        new_list->head->below = (*list)->head;
+                        new_list->tail->below = (*list)->tail;
+                        new_list->down_level = (*list);
+                        (*list)->up_level = new_list;
+                        (*list)->head->above = new_list->head;
+                        (*list)->tail->above = new_list->tail;
                         ptr = new_list->head;
                         new = (NODE *) malloc(sizeof(NODE));
                         if(new != NULL)
@@ -140,6 +140,7 @@ void skip_list_insert(SKIP_LIST **list, int i)
                             old->above = new;
                             new->i = i;
                             new->prev = ptr;
+                            ptr->next->prev = new;
                             new->next = ptr->next;
                             ptr->next = new;
                             new->below = old;
