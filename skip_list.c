@@ -122,10 +122,10 @@ void skip_list_insert(SKIP_LIST **list, int i)
                 }
                 else // There is no list above or there is no connection between the lists
                 {
-                    while(ptr->i != INT_MIN) // Then, we have to walk up to the first node in the list of the new inserted node
-                    {
-                        ptr = ptr->prev;
-                    }
+                    // while(ptr->i != INT_MIN) // Then, we have to walk up to the first node in the list of the new inserted node
+                    // {
+                    //     ptr = ptr->prev;
+                    // }
                     new_list = skip_list_create();
                     new_list->head->below = (*list)->head;
                     new_list->tail->below = (*list)->tail;
@@ -173,7 +173,7 @@ void skip_list_remove(SKIP_LIST *list, int n)
         ptr = skip_list_search(list, n);
         if(ptr != NULL)
         {
-            while(ptr->above != NULL)
+            while(ptr != NULL)
             {
                 ptr->prev->next = ptr->next;
                 ptr->next->prev = ptr->prev;
@@ -181,9 +181,6 @@ void skip_list_remove(SKIP_LIST *list, int n)
                 free(ptr);
                 ptr = aux;
             }
-            ptr->prev->next = ptr->next;
-            ptr->next->prev = ptr->prev;
-            free(ptr);
         }
         else
         {
@@ -214,12 +211,9 @@ NODE *skip_list_search(SKIP_LIST *list, int n)
                 ptr = ptr->below;
             }
         }
-        if(ptr->i != n)
+        while(ptr != NULL && ptr->i != n)
         {
-            while( ptr != NULL && ptr->i != n)
-            {
-                ptr = ptr->next;
-            }
+            ptr = ptr->next;
         }
     }
     else
