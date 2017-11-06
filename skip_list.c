@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <time.h>
 #include "inc/skip_list.h"
 
 #define CONST_COIN 5 // Value reference to be used in insert function.
@@ -70,13 +69,17 @@ void skip_list_insert(SKIP_LIST **list, int i)
     {
         SKIP_LIST *new_list = NULL;
         NODE *ptr = (*list)->head, *old = NULL;
-        while(ptr->below) // Go to the deeper list, skipping the unecessary values
+        while(ptr->below != NULL) // Go to the deeper list, skipping the unecessary values
         {
             while(i >= ptr->next->i) // Skip the unecessary values
             {
                 ptr = ptr->next;
             }
             ptr = ptr->below;
+        }
+        while(i >= ptr->next->i) // Skip the unecessary values, case the there's one list
+        {
+            ptr = ptr->next;
         }
         if(ptr->i != i)
         {
@@ -90,7 +93,6 @@ void skip_list_insert(SKIP_LIST **list, int i)
                 new->above = NULL;
                 ptr->next->prev = new;
                 ptr->next = new;
-                srand(time(NULL));
                 while((rand() % 10 + 1) > CONST_COIN) // Flip the coin, if get the value < 5, returns, otherwise insert node in the list at high level
                 {
                     old = new;
