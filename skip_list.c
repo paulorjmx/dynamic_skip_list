@@ -241,7 +241,7 @@ void skip_list_delete(SKIP_LIST **list)
     {
         SKIP_LIST *ptr_list = NULL;
         NODE *ptr_node = NULL, *aux = NULL;
-        while((*list) != NULL)%s
+        while((*list) != NULL)
         {
             ptr_list = (*list);
             (*list) = (*list)->down_level;
