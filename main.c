@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "inc/skip_list.h"
 
 int main(int argc, char *argv[])
 {
+	srand(time(NULL));
 	SKIP_LIST *l = skip_list_create();
 	skip_list_insert(&l, 1);
 	skip_list_insert(&l, 2);
